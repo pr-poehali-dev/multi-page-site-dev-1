@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import DocumentationPage from "./pages/DocumentationPage";
 import SystemObjectsPage from "./pages/SystemObjectsPage";
 import ContactsPage from "./pages/ContactsPage";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -24,6 +25,7 @@ function Navigation() {
     { path: '/documentation', label: 'Документация', icon: 'FileText' },
     { path: '/objects', label: 'Объекты системы', icon: 'Database' },
     { path: '/contacts', label: 'Контакты', icon: 'MapPin' },
+    { path: '/admin', label: 'Админ-панель', icon: 'Shield' },
   ];
 
   const NavLinks = ({ mobile = false }) => (
@@ -90,6 +92,7 @@ const App = () => (
             <Route path="/documentation" element={<DocumentationPage />} />
             <Route path="/objects" element={<SystemObjectsPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/admin" element={<AuthPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
