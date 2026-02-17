@@ -1,3 +1,11 @@
+import funcUrls from '../../backend/func2url.json';
+
+export interface VersionFile {
+  name: string;
+  type: 'pdf' | 'xls' | 'doc';
+  size: string;
+}
+
 export interface Version {
   id: number;
   version: string;
@@ -7,73 +15,62 @@ export interface Version {
   description: string;
   fullDescription?: string;
   changes: string[];
-  files: { name: string; type: 'pdf' | 'xls' | 'doc'; size: string }[];
+  files: VersionFile[];
+  authorId?: number;
+  authorName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export const versionsData: Version[] = [
-  {
-    id: 1,
-    version: '3.2.0',
-    date: '2026-01-25',
-    type: 'major',
-    title: 'Крупное обновление: новый интерфейс администрирования',
-    description: 'Полностью переработанный интерфейс с улучшенной производительностью',
-    fullDescription: `В этом крупном обновлении мы полностью переработали панель администрирования, сделав её более удобной и производительной.
+const API_URL = funcUrls.versions;
 
-Основной акцент был сделан на улучшение пользовательского опыта: новые виджеты, быстрые действия, обновлённая навигация. Система уведомлений теперь поддерживает push-уведомления и настраиваемые правила оповещений.
+export async function fetchVersions(): Promise<Version[]> {
+  const res = await fetch(API_URL);
+  if (!res.ok) throw new Error('Ошибка загрузки версий');
+  return res.json();
+}
 
-Также значительно улучшена работа с большими таблицами — виртуализация списков позволяет работать с десятками тысяч записей без задержек. Добавлен экспорт данных в формат Excel с поддержкой пользовательских шаблонов.`,
-    changes: [
-      'Новая панель администрирования',
-      'Улучшенная система уведомлений',
-      'Оптимизация работы с большими таблицами',
-      'Добавлен экспорт в Excel',
-    ],
-    files: [
-      { name: 'Руководство_v3.2.0.pdf', type: 'pdf', size: '2.4 MB' },
-      { name: 'Технические_спецификации.doc', type: 'doc', size: '856 KB' },
-    ],
-  },
-  {
-    id: 2,
-    version: '3.1.5',
-    date: '2026-01-15',
-    type: 'patch',
-    title: 'Исправление критических ошибок',
-    description: 'Устранены проблемы с синхронизацией данных',
-    fullDescription: `Обновление направлено на устранение критических ошибок, обнаруженных после выпуска версии 3.1.0.
+export async function fetchVersion(id: number): Promise<Version> {
+  const res = await fetch(`${API_URL}?id=${id}`);
+  if (!res.ok) throw new Error('Версия не найдена');
+  return res.json();
+}
 
-Главная проблема была связана с модулем отчётов, где в определённых сценариях данные отображались некорректно. Также была улучшена общая стабильность системы и обновлены зависимости, закрывающие известные уязвимости безопасности.`,
-    changes: [
-      'Исправлена ошибка в модуле отчетов',
-      'Улучшена стабильность системы',
-      'Обновлены зависимости безопасности',
-    ],
-    files: [
-      { name: 'Список_исправлений_v3.1.5.pdf', type: 'pdf', size: '450 KB' },
-    ],
-  },
-  {
-    id: 3,
-    version: '3.1.0',
-    date: '2026-01-01',
-    type: 'minor',
-    title: 'Новые возможности фильтрации',
-    description: 'Расширенные инструменты для работы с данными',
-    fullDescription: `Версия 3.1.0 расширяет возможности работы с данными, добавляя продвинутые фильтры и новые форматы экспорта.
+export async function createVersion(data: Partial<Version>, token: string): Promise<{ id: number }> {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Ошибка создания');
+  }
+  return res.json();
+}
 
-Пользователи теперь могут создавать сложные фильтры с несколькими условиями, сохранять их для повторного использования и делиться ими с коллегами. Поддержан экспорт в CSV, JSON и XML форматы помимо существующих. Производительность поиска увеличена до 3x за счёт оптимизации индексов.`,
-    changes: [
-      'Добавлены продвинутые фильтры',
-      'Новые виды экспорта данных',
-      'Улучшена производительность поиска',
-    ],
-    files: [
-      { name: 'Руководство_фильтры.pdf', type: 'pdf', size: '1.2 MB' },
-      { name: 'Примеры_использования.xls', type: 'xls', size: '340 KB' },
-    ],
-  },
-];
+export async function updateVersion(id: number, data: Partial<Version>, token: string): Promise<void> {
+  const res = await fetch(`${API_URL}?id=${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Ошибка обновления');
+  }
+}
+
+export async function deleteVersion(id: number, token: string): Promise<void> {
+  const res = await fetch(`${API_URL}?id=${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Ошибка удаления');
+  }
+}
 
 export const getTypeColor = (type: Version['type']) => {
   switch (type) {

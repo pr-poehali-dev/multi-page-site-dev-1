@@ -5,24 +5,13 @@ import LoginForm from '@/components/extensions/auth-email/LoginForm';
 import RegisterForm from '@/components/extensions/auth-email/RegisterForm';
 import ResetPasswordForm from '@/components/extensions/auth-email/ResetPasswordForm';
 import UserProfile from '@/components/extensions/auth-email/UserProfile';
-import { useAuth } from '@/components/extensions/auth-email/useAuth';
-
-const AUTH_URL = 'https://functions.poehali.dev/8f24641f-6bd9-4176-b9ee-a4b6765409d2';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'reset'>('login');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const auth = useAuth({
-    apiUrls: {
-      login: `${AUTH_URL}?action=login`,
-      register: `${AUTH_URL}?action=register`,
-      verifyEmail: `${AUTH_URL}?action=verify-email`,
-      refresh: `${AUTH_URL}?action=refresh`,
-      logout: `${AUTH_URL}?action=logout`,
-      resetPassword: `${AUTH_URL}?action=reset-password`,
-    },
-  });
+  const auth = useAuthContext();
 
   if (auth.isAuthenticated && auth.user) {
     return (
@@ -50,7 +39,7 @@ export default function AuthPage() {
             <CardDescription>Выберите способ входа</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'login' | 'register' | 'reset')}>
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="login">Вход</TabsTrigger>
                 <TabsTrigger value="register">Регистрация</TabsTrigger>
@@ -69,9 +58,10 @@ export default function AuthPage() {
                 <RegisterForm
                   onRegister={auth.register}
                   onVerifyEmail={auth.verifyEmail}
+                  onLogin={auth.login}
                   isLoading={auth.isLoading}
-                  onSuccess={(message) => {
-                    setSuccessMessage(message);
+                  onSuccess={() => {
+                    setSuccessMessage('Регистрация прошла успешно');
                     setActiveTab('login');
                   }}
                 />
@@ -79,10 +69,11 @@ export default function AuthPage() {
 
               <TabsContent value="reset">
                 <ResetPasswordForm
+                  onRequestReset={auth.requestPasswordReset}
                   onResetPassword={auth.resetPassword}
                   isLoading={auth.isLoading}
-                  onSuccess={(message) => {
-                    setSuccessMessage(message);
+                  onSuccess={() => {
+                    setSuccessMessage('Пароль успешно изменён');
                     setActiveTab('login');
                   }}
                 />

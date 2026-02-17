@@ -11,6 +11,7 @@ import ContactsPage from "./pages/ContactsPage";
 import AuthPage from "./pages/AuthPage";
 import VersionDetailPage from "./pages/VersionDetailPage";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from '@/contexts/AuthContext';
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -86,18 +87,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/documentation" element={<DocumentationPage />} />
-            <Route path="/documentation/:id" element={<VersionDetailPage />} />
-            <Route path="/objects" element={<SystemObjectsPage />} />
-            <Route path="/contacts" element={<ContactsPage />} />
-            <Route path="/admin" element={<AuthPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <AuthProvider>
+          <div className="min-h-screen bg-background">
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/documentation" element={<DocumentationPage />} />
+              <Route path="/documentation/:id" element={<VersionDetailPage />} />
+              <Route path="/objects" element={<SystemObjectsPage />} />
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/admin" element={<AuthPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

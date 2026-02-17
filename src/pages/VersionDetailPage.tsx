@@ -1,15 +1,35 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { versionsData, getTypeColor, getTypeLabel, getFileIcon } from '@/data/versions';
+import { Version, fetchVersion, getTypeColor, getTypeLabel, getFileIcon } from '@/data/versions';
 
 export default function VersionDetailPage() {
   const { id } = useParams();
-  const version = versionsData.find((v) => v.id === Number(id));
+  const [version, setVersion] = useState<Version | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!version) {
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    fetchVersion(Number(id))
+      .then(setVersion)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Icon name="Loader2" size={32} className="animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !version) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <Icon name="FileQuestion" size={64} className="mx-auto text-muted-foreground mb-4" />
@@ -84,34 +104,35 @@ export default function VersionDetailPage() {
           </CardContent>
         </Card>
 
-        <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Paperclip" size={20} />
-              Файлы документации
-            </CardTitle>
-            <CardDescription>Скачайте необходимые документы</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {version.files.map((file, idx) => (
-                <Button
-                  key={idx}
-                  variant="outline"
-                  className="flex items-center gap-3 justify-start h-auto py-3 px-4 hover:bg-accent"
-                  onClick={() => console.log('Скачать', file.name)}
-                >
-                  <Icon name={getFileIcon(file.type)} size={22} className="text-primary" />
-                  <div className="text-left">
-                    <div className="font-medium">{file.name}</div>
-                    <div className="text-xs text-muted-foreground">{file.size}</div>
-                  </div>
-                  <Icon name="Download" size={18} className="ml-auto" />
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {version.files.length > 0 && (
+          <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Paperclip" size={20} />
+                Файлы документации
+              </CardTitle>
+              <CardDescription>Скачайте необходимые документы</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3">
+                {version.files.map((file, idx) => (
+                  <Button
+                    key={idx}
+                    variant="outline"
+                    className="flex items-center gap-3 justify-start h-auto py-3 px-4 hover:bg-accent"
+                  >
+                    <Icon name={getFileIcon(file.type)} size={22} className="text-primary" />
+                    <div className="text-left">
+                      <div className="font-medium">{file.name}</div>
+                      <div className="text-xs text-muted-foreground">{file.size}</div>
+                    </div>
+                    <Icon name="Download" size={18} className="ml-auto" />
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

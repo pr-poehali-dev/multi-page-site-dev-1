@@ -30,6 +30,7 @@ export interface User {
   email: string;
   name: string | null;
   email_verified?: boolean;
+  role?: string;
 }
 
 export interface LoginPayload {
