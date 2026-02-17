@@ -9,6 +9,7 @@ import DocumentationPage from "./pages/DocumentationPage";
 import SystemObjectsPage from "./pages/SystemObjectsPage";
 import ContactsPage from "./pages/ContactsPage";
 import AuthPage from "./pages/AuthPage";
+import VersionDetailPage from "./pages/VersionDetailPage";
 import NotFound from "./pages/NotFound";
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -41,7 +42,7 @@ function Navigation() {
               : 'hover:bg-accent text-foreground'
           }`}
         >
-          <Icon name={item.icon as any} size={20} />
+          <Icon name={item.icon} size={20} />
           <span>{item.label}</span>
         </Link>
       ))}
@@ -90,6 +91,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/documentation" element={<DocumentationPage />} />
+            <Route path="/documentation/:id" element={<VersionDetailPage />} />
             <Route path="/objects" element={<SystemObjectsPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/admin" element={<AuthPage />} />
